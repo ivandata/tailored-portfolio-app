@@ -2,7 +2,9 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "theme": ["./theme"]
+      "theme": ["./theme"],
+      "components": ["./components"],
+      "mock": ["./mock"]
     }
   }
 }

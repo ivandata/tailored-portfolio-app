@@ -6,7 +6,6 @@ export const SPageContainer = styled.div`
 
 export const SPageHeader = styled.header`
   background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
