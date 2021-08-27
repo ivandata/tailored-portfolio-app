@@ -1,35 +1,13 @@
-# <project_name>
+# Portfolio calculator
 ![Coverage badge](./coverage/badge-branches.svg)
 ![Coverage badge](./coverage/badge-functions.svg)
 ![Coverage badge](./coverage/badge-lines.svg)
 ![Coverage badge](./coverage/badge-statements.svg)
 
-Additional line of information text about what the project does.
+Portfolio calculator based on risk and monthly income. 
+[Challenge description](https://www.notion.so/Frontend-Coding-Challenge-2086782713e84b818fd55def02505bd1)
 
-:white_check_mark: PWA support; \
-:white_check_mark: The off-line mode; \
-:white_check_mark: Responsive and developed in a mobile-first approach; \
-:white_check_mark: Tested on a decent coverage level using jest;
-
-## Installing <project_name> as PWA
-This app supporting Progressive Web Apps (PWA) for a fast web experience. 
-You can install this app on your computer or mobile device.
-
-#### If you use a computer and Chrome
-- Go to [demo_page].
-- At the top right of the address bar, click Install.
-- Follow the onscreen instructions to install the PWA.
-
-#### If you use Android and Chrome.
-- Go to [demo_page].
-- Tap Add to home screen.
-- Follow the onscreen instructions to install.
-
-#### If you use iOS and Safari
-- Go to [demo_page].
-- Tap the ‘Share’ button
-- Tap ‘Add to Home Screen.’ 
-- Enter the name for the app then tap add. 
+### [Demo page](https://vitamin-portfolio.netlify.app/)
 
 ## Used tools:
 ![prettier version](https://img.shields.io/badge/prettier-2.3.2-brightgreen)
@@ -52,7 +30,7 @@ You should have the following dependencies installed already:
 - [node](https://nodejs.org/en/download/)
 - [volta](https://github.com/volta-cli/volta) (or at least [nvm](https://github.com/nvm-sh/nvm))
 
-## Run <project_name> locally
+## Run app locally
 If you using nvm instead volta run:
 ```sh
 $ nvm use
@@ -72,10 +50,10 @@ $ yarn test
 
 For test badges generating:
 ```sh
-$ test:badges
+$ npm test:badges
 ```
 
 For dependencies badges updating:
 ```sh
-$ dep:badges
+$ yarn dep:badges
 ```
