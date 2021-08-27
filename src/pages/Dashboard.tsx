@@ -1,19 +1,6 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
-import {
-  CartesianGrid,
-  Tooltip,
-  XAxis,
-  YAxis,
-  Area,
-  ResponsiveContainer,
-  Bar,
-  Legend,
-  ComposedChart,
-  Line,
-} from 'recharts';
 import styled from 'styled-components';
-import mockData from 'mock/financialmodelingprep';
-import { PORTFOLIOS } from 'mock/portfolios';
+import { nanoid } from 'nanoid';
 
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
@@ -31,14 +18,24 @@ import {
   PERIOD_START,
   RISK,
   DATE_FORMAT,
-} from '../types/constants';
+} from 'types/constants';
+
+import mockData from 'mock/financialmodelingprep';
+import { PORTFOLIOS } from 'mock/portfolios';
+
+import ChartComponent from 'components/ChartComponent';
+import ButtonComponent from 'components/ButtonComponent';
+import TextInput from 'components/TextInput';
 
 dayjs.extend(duration);
 
 const Dashboard: FunctionComponent = () => {
-  const [portfolio] = useState<Portfolio[]>(PORTFOLIOS[`${RISK}`]);
-  const monthlyInvest = (INCOME * CONTRIBUTION).toFixed(2);
   const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [income, setIncome] = useState<number>(INCOME);
+  const [monthlyInvest, setMonthlyInvest] = useState<number>(
+    income * CONTRIBUTION,
+  );
+  const [risk, setRisk] = useState<number>(RISK);
 
   const getDailyPrices = (hs: HistoricalStock): DailyPrices => {
     const pricesByDate: DailyPrices = {};
@@ -81,31 +78,26 @@ const Dashboard: FunctionComponent = () => {
     }, []);
   };
 
-  const getPurchases = (investDates: string[], dp: DailyPrices): Purchase[] => {
-    const purchases: Purchase[] = [];
-
-    for (const date of investDates) {
-      portfolio.map(({ ticker }) => {
-        const tickerWeight = portfolio.filter(
-          (element) => element.ticker === ticker,
-        )[0].weight;
-        const closingPrice = getClosingPrice(dp, date, ticker);
-        const shares = (tickerWeight * +monthlyInvest) / closingPrice;
-        purchases.push({
-          date,
-          ticker,
-          closingPrice,
-          shares,
-        });
-      });
-    }
-
-    return purchases;
-  };
+  const dailyPrices = getDailyPrices(mockData);
+  const investDates = getInvestDates(dailyPrices);
 
   const getClosingPrice = (dp: DailyPrices, dt: string, tk: Ticker): number => {
     return dp[dayjs(dt).format(DATE_FORMAT)][tk];
   };
+
+  const getPortfolio = (risk: number | string) => {
+    for (const portfolio in PORTFOLIOS) {
+      if (+risk <= +portfolio || +risk === 1) {
+        return portfolio;
+      }
+    }
+
+    return '2';
+  };
+
+  const [portfolio, setPortfolio] = useState<Portfolio[]>(
+    PORTFOLIOS[getPortfolio(risk)],
+  );
 
   const getPortfolioAmount = (
     ps: Purchase[],
@@ -122,17 +114,40 @@ const Dashboard: FunctionComponent = () => {
     }, 0);
   };
 
-  useEffect(() => {
+  const getPurchases = (investDates: string[], dp: DailyPrices): Purchase[] => {
+    const purchases: Purchase[] = [];
+
+    for (const date of investDates) {
+      portfolio.map(({ ticker }) => {
+        const tickerWeight = portfolio.filter(
+          (element) => element.ticker === ticker,
+        )[0].weight;
+        const closingPrice = getClosingPrice(dp, date, ticker);
+        const shares =
+          (tickerWeight * +monthlyInvest.toFixed(2)) / closingPrice;
+        purchases.push({
+          date,
+          ticker,
+          closingPrice,
+          shares,
+        });
+      });
+    }
+
+    return purchases;
+  };
+
+  const getChartData = () => {
     setChartData([]);
-    const dailyPrices = getDailyPrices(mockData);
-    const investDates = getInvestDates(dailyPrices);
-    const purchases = getPurchases(investDates, dailyPrices);
+    for (let period = 0; period < investDates.length; period++) {
+      const date = investDates[period];
 
-    for (let numPeriod = 0; numPeriod < investDates.length; numPeriod++) {
-      const date = investDates[numPeriod];
-
-      const portfolioAmount = getPortfolioAmount(purchases, date, dailyPrices);
-      const contributions = (numPeriod + 1) * +monthlyInvest;
+      const portfolioAmount = getPortfolioAmount(
+        getPurchases(investDates, dailyPrices),
+        date,
+        dailyPrices,
+      );
+      const contributions = (period + 1) * +monthlyInvest.toFixed(2);
       const returns = portfolioAmount - contributions;
       setChartData((data) => {
         return data.concat({
@@ -143,43 +158,76 @@ const Dashboard: FunctionComponent = () => {
         });
       });
     }
-  }, []);
+  };
 
-  console.log('chartData', chartData);
+  useEffect(() => {
+    getChartData();
+  }, [portfolio, monthlyInvest]);
+
+  const onCalculate = () => {
+    setPortfolio(PORTFOLIOS[`${getPortfolio(risk)}`]);
+    setMonthlyInvest(income * CONTRIBUTION);
+  };
+
+  const onRiskChange = (risk: number | string) => {
+    setRisk(+risk <= 10 ? +risk : 10);
+  };
+
   return (
-    <Container>
-      <ResponsiveContainer width="99%" height={250}>
-        <ComposedChart width={730} height={250} data={chartData}>
-          <XAxis
-            dataKey="date"
-            type="category"
-            interval={6}
-            style={{ fontSize: '.6rem' }}
-            height={60}
-          />
-          <YAxis interval={0} tick={{ fontSize: '.6rem' }} />
-          <Tooltip />
-          <Legend />
-          <CartesianGrid stroke="#f5f5f5" />
-          <Bar dataKey="portfolio" barSize={20} fill="#F9A8D4" />
-          <Area
-            type="monotone"
-            dataKey="contributions"
-            fill="#6EE7B7"
-            stroke="#6EE7B7"
-          />
-          <Line type="monotone" dataKey="returns" stroke="#047857" />
-        </ComposedChart>
-      </ResponsiveContainer>
-    </Container>
+    <SContainer>
+      <header>
+        <h1>Portfolio calculator based on risk and monthly income</h1>
+      </header>
+      <ul>
+        <li>
+          The stocks are based on the supplied portfolio weighting nad and they
+          make up 15% of the monthly income.
+        </li>
+        <li>
+          First contribution took place on 3.1.2017 and the last contribution on
+          1.6.2021.
+        </li>
+        <li>The close price use as the purchase price of the partial share.</li>
+      </ul>
+      <SControls>
+        <TextInput
+          inputId={nanoid(4)}
+          value={income}
+          label="Income"
+          description="How much do you earn per month?"
+          onChange={({ currentTarget }) => setIncome(+currentTarget.value)}
+        />
+        <TextInput
+          inputId={nanoid(4)}
+          value={risk}
+          label="Risk"
+          description="What is your risk tolerance level? (Between 0-10)"
+          onChange={({ currentTarget }) => onRiskChange(currentTarget.value)}
+        />
+        <ButtonComponent onClick={onCalculate}>Calculate</ButtonComponent>
+      </SControls>
+      <ChartComponent chartData={chartData} />
+    </SContainer>
   );
 };
 
 export default Dashboard;
 
-const Container = styled.section`
-  max-width: 1000px;
+const SContainer = styled.section`
+  background-color: ${({ theme }) => theme.colors.bkg.container};
   width: 100%;
-  height: 300px;
-  padding: 30px;
+  padding: ${({ theme }) => theme.spacing.xl}rem;
+
+  ul {
+    max-width: 450px;
+  }
+`;
+
+const SControls = styled.div`
+  margin: ${({ theme }) => theme.spacing.xl}rem 0;
+  max-width: 250px;
+
+  & > * + * {
+    margin-top: ${({ theme }) => theme.spacing.sm}rem;
+  }
 `;

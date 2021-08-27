@@ -3,8 +3,10 @@
     "baseUrl": "./src",
     "paths": {
       "theme": ["./theme"],
+      "types": ["./types"],
       "components": ["./components"],
-      "mock": ["./mock"]
+      "mock": ["./mock"],
+      "utils": ["./utils"]
     }
   }
 }
