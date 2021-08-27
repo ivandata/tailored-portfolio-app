@@ -1,24 +1,14 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { nanoid } from 'nanoid';
-
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 
-import { Ticker } from 'types/Tickers';
 import { Portfolio } from 'types/Portfilio';
 import { Purchase } from 'types/Purchase';
 import { ChartData } from 'types/ChartData';
 import { DailyPrices } from 'types/DailyPrices';
-import { HistoricalStock } from 'types/HistoricalStock';
-import {
-  CONTRIBUTION,
-  INCOME,
-  PERIOD_END,
-  PERIOD_START,
-  RISK,
-  DATE_FORMAT,
-} from 'types/constants';
+import { CONTRIBUTION, INCOME, RISK, DATE_FORMAT } from 'types/constants';
 
 import mockData from 'mock/financialmodelingprep';
 import { PORTFOLIOS } from 'mock/portfolios';
@@ -26,6 +16,11 @@ import { PORTFOLIOS } from 'mock/portfolios';
 import ChartComponent from 'components/ChartComponent';
 import ButtonComponent from 'components/ButtonComponent';
 import TextInput from 'components/TextInput';
+
+import { getDailyPrices } from 'utils/getDailyPrices';
+import { getInvestDates } from 'utils/getInvestDates';
+import { getPortfolio } from 'utils/getPortfolio';
+import { getClosingPrice } from 'utils/getClosingPrice';
 
 dayjs.extend(duration);
 
@@ -36,68 +31,12 @@ const Dashboard: FunctionComponent = () => {
     income * CONTRIBUTION,
   );
   const [risk, setRisk] = useState<number>(RISK);
-
-  const getDailyPrices = (hs: HistoricalStock): DailyPrices => {
-    const pricesByDate: DailyPrices = {};
-
-    for (const data of hs.historicalStockList) {
-      data.historical.forEach((item) => {
-        pricesByDate[item.date] = {
-          ...pricesByDate[item.date],
-          ...{ [data.symbol]: item.close },
-        };
-      });
-    }
-
-    return pricesByDate;
-  };
-
-  const getInvestDates = (dp: DailyPrices): string[] => {
-    let periodStart = dayjs(PERIOD_START);
-    const periodEnd = dayjs(PERIOD_END);
-
-    const investedMonths: string[] = [];
-    while (periodStart.isBefore(periodEnd) || periodStart.isSame(periodEnd)) {
-      periodStart = investedMonths.length
-        ? periodStart.add(1, 'month')
-        : periodStart;
-
-      investedMonths.push(periodStart.format());
-    }
-
-    const isMarketDay = (date: string) => {
-      return Boolean(dp[dayjs(date).format(DATE_FORMAT)]);
-    };
-
-    return investedMonths.reduce((acc: string[], item: string) => {
-      while (!isMarketDay(item) && dayjs(item).isBefore(periodEnd)) {
-        item = dayjs(item).add(1, 'day').format();
-      }
-
-      return isMarketDay(item) ? acc.concat(item) : acc;
-    }, []);
-  };
-
-  const dailyPrices = getDailyPrices(mockData);
-  const investDates = getInvestDates(dailyPrices);
-
-  const getClosingPrice = (dp: DailyPrices, dt: string, tk: Ticker): number => {
-    return dp[dayjs(dt).format(DATE_FORMAT)][tk];
-  };
-
-  const getPortfolio = (risk: number | string) => {
-    for (const portfolio in PORTFOLIOS) {
-      if (+risk <= +portfolio || +risk === 1) {
-        return portfolio;
-      }
-    }
-
-    return '2';
-  };
-
   const [portfolio, setPortfolio] = useState<Portfolio[]>(
     PORTFOLIOS[getPortfolio(risk)],
   );
+
+  const dailyPrices = getDailyPrices(mockData);
+  const investDates = getInvestDates(dailyPrices);
 
   const getPortfolioAmount = (
     ps: Purchase[],
@@ -114,7 +53,7 @@ const Dashboard: FunctionComponent = () => {
     }, 0);
   };
 
-  const getPurchases = (investDates: string[], dp: DailyPrices): Purchase[] => {
+  const getPurchases = (): Purchase[] => {
     const purchases: Purchase[] = [];
 
     for (const date of investDates) {
@@ -122,7 +61,7 @@ const Dashboard: FunctionComponent = () => {
         const tickerWeight = portfolio.filter(
           (element) => element.ticker === ticker,
         )[0].weight;
-        const closingPrice = getClosingPrice(dp, date, ticker);
+        const closingPrice = getClosingPrice(dailyPrices, date, ticker);
         const shares =
           (tickerWeight * +monthlyInvest.toFixed(2)) / closingPrice;
         purchases.push({
@@ -143,7 +82,7 @@ const Dashboard: FunctionComponent = () => {
       const date = investDates[period];
 
       const portfolioAmount = getPortfolioAmount(
-        getPurchases(investDates, dailyPrices),
+        getPurchases(),
         date,
         dailyPrices,
       );
