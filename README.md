@@ -11,12 +11,14 @@ Portfolio calculator based on risk and monthly income.
 
 ## Used tools:
 ![prettier version](https://img.shields.io/badge/prettier-2.3.2-brightgreen)
-![nanoid version](https://img.shields.io/badge/nanoid-3.1.23-brightgreen)
+![nanoid version](https://img.shields.io/badge/nanoid-3.1.25-brightgreen)
 ![styled-components version](https://img.shields.io/badge/styled--components-5.3.0-brightgreen) 
 ![eslint version](https://img.shields.io/badge/eslint-7.30.0-brightgreen) 
 ![commitlint version](https://img.shields.io/badge/commitlint-12.1.4-brightgreen) 
 ![craco-alias version](https://img.shields.io/badge/craco--alias-3.0.1-brightgreen) 
 ![husky version](https://img.shields.io/badge/husky-7.0.0-brightgreen)
+![husky version](https://img.shields.io/badge/husky-7.0.0-brightgreen)
+![@faker-js/faker version](https://img.shields.io/badge/@faker--js/faker-7.5.0-brightgreen)
 
 - [nanoid](https://github.com/ai/nanoid) A tiny, secure, URL-friendly, unique string ID generator for JavaScript.;
 - [styled-components](https://github.com/styled-components/styled-components);
@@ -37,7 +39,7 @@ $ nvm use
 ```
 To lunch the app locally:
 ```sh
-$ yarn install
+$ yarn
 $ yarn start
 ```
 The browser should open automatically. 
@@ -45,15 +47,15 @@ I it not happens, open [http://localhost:3000](http://localhost:3000) to view it
 
 To test the app run:
 ```sh
-$ yarn test
+$ yarn run test
 ```
 
 For test badges generating:
 ```sh
-$ npm test:badges
+$ yarn run test:badges
 ```
 
 For dependencies badges updating:
 ```sh
-$ yarn dep:badges
+$ yarn run dep:badges
 ```

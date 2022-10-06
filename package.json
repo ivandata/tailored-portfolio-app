@@ -63,7 +63,7 @@
     "test": "craco test",
     "test:coverage": "craco test --coverage --watchAll=false",
     "test:badges": "yarn run test:coverage  && jest-coverage-badges",
-    "dep:badges": "npx update-badge prettier nanoid styled-components eslint commitlint craco-alias husky",
+    "dep:badges": "npx update-badge prettier nanoid styled-components eslint commitlint craco-alias husky @faker-js/faker",
     "eject": "react-scripts eject",
     "pre-commit": "lint-staged",
     "prepare": "husky install"

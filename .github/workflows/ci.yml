@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request_target:
+    branches:
+      - develop
+      - master
+  push:
+    branches:
+      - develop
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Set node version 🏗
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies ⬇️
+        run: yarn
+      - name: Set env to staging
+        if: endsWith(github.ref, '/develop')
+        run: echo "ENV=staging" >> $GITHUB_ENV
+      - name: Set env to production
+        if: endsWith(github.ref, '/master')
+        run: echo "ENV=production" >> $GITHUB_ENV
+      - name: Run lint 👀
+        run: yarn run pre-commit
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Set node version 🏗
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies ⬇️
+        run: yarn
+      - name: Set env to staging
+        if: endsWith(github.ref, '/develop')
+        run: echo "ENV=staging" >> $GITHUB_ENV
+      - name: Set env to production
+        if: endsWith(github.ref, '/master')
+        run: echo "ENV=production" >> $GITHUB_ENV
+      - name: Run unit tests ✅
+        run: yarn run test:coverage
+      - name: Replace coverage badges 🎟
+        run: yarn run test:badges
+      - name: Replace package badges 🎟
+        run: yarn run dep:badges
