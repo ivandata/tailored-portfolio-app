@@ -34,6 +34,7 @@ const TextInput: FunctionComponent<PropsWithChildren<TextInputProps>> = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        data-testid={inputId}
       />
     </SLabel>
   );

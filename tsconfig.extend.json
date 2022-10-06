@@ -6,7 +6,8 @@
       "types": ["./types"],
       "components": ["./components"],
       "mock": ["./mock"],
-      "utils": ["./utils"]
+      "utils": ["./utils"],
+      "testing": ["./testing"]
     }
   }
 }
