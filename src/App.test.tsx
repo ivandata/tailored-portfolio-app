@@ -4,6 +4,8 @@ import App from './App';
 
 test('renders learn react link', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
+  const linkElement = screen.getByText(
+    /Portfolio calculator based on risk and monthly income/i,
+  );
   expect(linkElement).toBeInTheDocument();
 });
