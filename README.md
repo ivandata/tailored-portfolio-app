@@ -1,4 +1,8 @@
 # Portfolio calculator
+![Coverage badge](./coverage/badge-branches.svg)
+![Coverage badge](./coverage/badge-functions.svg)
+![Coverage badge](./coverage/badge-lines.svg)
+![Coverage badge](./coverage/badge-statements.svg)
 Portfolio calculator based on risk and monthly income. 
 
 ### [Demo page](https://vitamin-portfolio.netlify.app/)
